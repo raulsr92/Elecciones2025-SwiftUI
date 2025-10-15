@@ -33,7 +33,7 @@ struct MainView: View {
                 }
                 .tag(2)
             
-            PlaceholderView(title: "Results")                .tabItem {
+            ResultadosView()               .tabItem {
                     Image(systemName: "chart.pie")
                     Text("Resultados")
                 }
