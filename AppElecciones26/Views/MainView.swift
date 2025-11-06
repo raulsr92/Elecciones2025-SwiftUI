@@ -19,10 +19,10 @@ struct MainView: View {
                 }
                 .tag(0)
             
-            PlaceholderView(title: "Favoritos")
+            CandidatosView()
                 .tabItem {
-                    Image(systemName: "star")
-                    Text("Favoritos")
+                    Image(systemName: "person.fill")
+                    Text("Candidatos")
                 }
                 .tag(1)
             
@@ -46,3 +46,4 @@ struct MainView: View {
 #Preview {
     MainView()
 }
+

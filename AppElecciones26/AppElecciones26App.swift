@@ -7,11 +7,18 @@
 
 import SwiftUI
 
+
 @main
 struct AppElecciones26App: App {
+    
+    @StateObject public var objViewModel = CoreDataViewModel()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainView()
+                .environment(\.managedObjectContext, objViewModel.container.viewContext)
+                .environmentObject(objViewModel)
+    
         }
     }
 }

@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct CandidatosView: View {
     @State private var searchText = ""
     
     //Modelo Partidos
+    /*
     struct PartidoItem:Identifiable{
         let id = UUID()
         let name: String
@@ -25,7 +27,7 @@ struct CandidatosView: View {
         let id = UUID()
         let name: String
         let imageEje: String
-
+        
     }
     
     //Array de partidos en base a modelo PartidoItem
@@ -71,49 +73,43 @@ struct CandidatosView: View {
         EjeItem(name: "Seguridad", imageEje: "eje8"),
         EjeItem(name: "Empleo", imageEje: "eje9")
     ]
-        
+    */
     let columns = Array(repeating: GridItem(.flexible()), count: 3)
+    
+    @Environment(\.managedObjectContext) var mOC
+    @FetchRequest(sortDescriptors: [SortDescriptor(\.nombres, order: .forward)], animation: .default)
+    
+    private var candidatos: FetchedResults<Candidato>
+    
+    @State var activarSheet: Bool = false
+    @StateObject public var objViewModel = CoreDataViewModel()
+    //@EnvironmentObject var objViewModel: CoreDataViewModel
     
     var body: some View {
         
-        VStack(spacing:20){
-            Image("banderaperu")
-                .resizable()
-                //.scaledToFit()
-                .frame(height: 20)
-                .padding(.horizontal,40)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 0)
-                    .stroke(Color.red,lineWidth:1)
-                    .frame(height: 20)
-                    .padding(.horizontal,40)
-                )
-            Text("Candidatos Presidenciales")
-                .font(.system(size: 20,weight: .semibold, design: .monospaced))
-                .foregroundStyle(Color(red:71/255,green:110/255,blue:174/255))
-                //.background(Color.blue)
-            
-            NavigationStack{
-                ScrollView {
+        NavigationStack(){
+            VStack(spacing:20){
+                ScrollView{
                     LazyVGrid(columns: columns,spacing: 15){
-                        ForEach(filteredPartidos){ partido in
+                        ForEach(candidatos, id: \.self){ candidato in
                             VStack(alignment:.center, spacing:14){
-                                Image(partido.imageCandidato)
+                                Image(candidato.foto ?? "")
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: 90, height:90)
                                     .clipShape(Circle())
                                     .overlay(Circle()
-                                        .stroke(Color(red:71/255,green:110/255,blue:174/255),lineWidth:3))
-                                                                        
-                                    //.background(Color.red)
-                                Text(partido.candidato)
-                                    //.multilineTextAlignment(.center)
+                                        .stroke(Color(red:71/255,green:110/255,blue:174/255),lineWidth:3))                                //Image(candidato.foto)
+                                    
+                                
+                                //.background(Color.red)
+                                Text("\(candidato.nombres ?? "") \(candidato.apellidos ?? "")")
+                                //.multilineTextAlignment(.center)
                                     .font(.system(size: 11,weight: .regular, design: .monospaced))
                                     .frame( maxWidth: .infinity,alignment:.center)
                                     .multilineTextAlignment(.center)
                                     .fixedSize(horizontal: false, vertical: true)
-                                    //.background(Color.blue)
+                                //.background(Color.blue)
                                 
                             }
                             
@@ -124,23 +120,57 @@ struct CandidatosView: View {
                             
                             //.background(Color(red:250/255, green:243/255,blue:183/255))
                             /*.overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(red:71/255,green:110/255,blue:174/255),lineWidth:2))
-                            */
+                             */
                         }
                     }.padding(.horizontal,14)
                 }
                 //.navigationTitle("Partidos Politicos")
             }
-            .searchable(text: $searchText,prompt: "Buscar Partidos Politicos")
+            .navigationTitle("Candidatos Presidenciales").navigationBarTitleDisplayMode(.inline)
+            .toolbar(content:{
+                ToolbarItem(placement: .topBarTrailing){
+                    Button(action: {
+                        //Accion
+                        activarSheet.toggle()
+                    }, label: {
+                        Image(systemName: "plus.circle")
+                            //.renderingMode(.original)
+                            .resizable()
+                            .scaledToFit()
+                    })
+                }
+                ToolbarItem(placement: .principal) {
+                    VStack(){
+                        
+                        Text("Candidatos Presidenciales")
+                            .font(.headline)
+                            .foregroundColor(.red) // ✅ Aquí puedes cambiar el color
+                        
+                        Spacer()
+                            .frame(height:10)
+                    }
+                }
+
+
+
+            })
+            .searchable(text: $searchText,prompt: "Buscar")
+            .onAppear{
+                print("Aparecio candidatos view")
+            }
+            
             //.padding(.vertical,20)
             
         }
-        
-        
-        
-        
+        .sheet(isPresented: $activarSheet, content: {
+            //Vista a diseñar
+            CrearCandidatoView()
+        })
     }
 }
 
+
 #Preview {
     CandidatosView()
+        
 }
